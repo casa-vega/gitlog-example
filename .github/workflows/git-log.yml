@@ -18,4 +18,4 @@ jobs:
           app_id: ${{ secrets.APP_ID }}
           private_key: ${{ secrets.PRIVATE_KEY }}
       - name: Interate through repos, capture git log with pretty print
-        run: ./github/scripts/git-log.sh -o casa-vega -t ${{ steps.generate_token.outputs.token }}
+        run: . github/scripts/git-log.sh -o casa-vega -t ${{ steps.generate_token.outputs.token }}
