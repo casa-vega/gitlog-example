@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-usage="$(basename "$0") [-h] [-tosf] [-r] -- Add all org repos to respository cache
+usage="$(basename "$0") [-h] [-tosf] [-r] -- capture all git logs in the org via clone --bare
 OPTIONS:
    -t | --token <TOKEN>           GitHub API token (required)
    -o | --org  <ORG>              GitHub org name (required)
    -s | --server <HOSTNAME>       GitHub server hostname (e.g. github.company.com, required)
-   -f | --file <PATH>             Path to file containing list of org repos (default: /tmp/org_repos.txt)
+   -f | --file <PATH>             Path to file containing list of org repos (default: org_repos.txt)
    -h | --help                    Show this message.
 EXAMPLE:
   $(basename "$0") -t <TOKEN> -o <ORG> -s <HOSTNAME>
@@ -116,8 +116,8 @@ for i in "${REPOS[@]}"; do
   rm -rf $REPO
 done
 
-
-# remove list of repos
+# remove list of repos and created directory
 rm $FILE
+rm -rf logs/
 # unset API token for good measure
 unset TOKEN
