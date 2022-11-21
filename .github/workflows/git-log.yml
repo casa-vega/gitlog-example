@@ -17,5 +17,13 @@ jobs:
         with:
           app_id: ${{ secrets.APP_ID }}
           private_key: ${{ secrets.PRIVATE_KEY }}
-      - name: Interate through repos, capture git log with pretty print
+      - name: Iterate through repos, capture git log with pretty print
         run: bash .github/scripts/git-log.sh -o casa-vega -t ${{ steps.generate_token.outputs.token }}
+      - name: Archive log folder
+        run: tar -czvf git-log-archive.tar.gz logs/
+      - name: Archive artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: git-log-archive.tar.gz
+          path: git-log-archive.tar.gz
+          retention: 8 days
