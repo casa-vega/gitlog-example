@@ -11,8 +11,7 @@ EXAMPLE:
   $(basename "$0") -t <TOKEN> -o <ORG> -s <HOSTNAME>
 "
 
-FILE="/tmp/org_repos.txt"
-RUN=false
+FILE="org_repos.txt"
 
 while true; do
   case "$1" in
@@ -56,10 +55,6 @@ while true; do
     fi
     shift 2
     ;;
-  -r | --run)
-    export RUN=true
-    shift 2
-    ;;
   -*)
     echo "Error: invalid argument: '$1'" 1>&2
     echo "$usage"
@@ -74,27 +69,27 @@ done
 # Loop through pagination to gather a list of repos from the org
 COUNT=1
 REQS=""
-if [ -z ${server+x} ]
+if [ ! -z ${SERVER} ]
 then
   URL="https://$SERVER/api/v3/orgs/$ORG/repos?per_page=100"
 else
   URL="https://api.github.com/orgs/$ORG/repos?per_page=100"
-fi  
+fi
 
 while [ "$URL" ]; do
   RESP=$(curl -iSs -H "Authorization: token $TOKEN" "$URL")
-  
+
   echo "$RESP" \
     | grep -o '"full_name": "[^"]*"' \
     | sed 's/"full_name": "//g' \
     | sed 's/"//g' >> "$FILE"
-  
+
   HEADERS=$(echo "$RESP" \
     | sed '/^\r$/q')
-  
+
   URL=$(echo "$HEADERS" \
     | sed -n -E 's/link:.*<(.*?)>; rel="next".*/\1/p')
-  
+
   REQS="$REQS $(echo "$RESP" \
     | sed '1,/^\r$/d')"
 
@@ -109,15 +104,20 @@ mapfile -t REPOS < "$FILE"
 # create logging directory
 mkdir logs
 
-# loop through repos
+# loop through repos and collect git logs
 for i in "${REPOS[@]}"; do
+  REPO=$(basename $i)
   echo "- cloning $i repo"
-  git clone --bare https://x-access-token:$TOKEN@github.com/$ORG/$i.git $i
-  cd $i
+  git clone --bare https://x-access-token:$TOKEN@github.com/$i.git $REPO
+  cd $REPO
   echo "- redirecting git log STDOUT to file for $i repo"
-  git log --pretty=format:%h,%an,%ae,%at,%D --all >> ../../log/$i.log
-  
+  git log --pretty=format:%h,%an,%ae,%at,%D --all >> ../logs/$REPO.log
+  cd ..
+  rm -rf $REPO
 done
 
+
+# remove list of repos
+rm $FILE
 # unset API token for good measure
 unset TOKEN
