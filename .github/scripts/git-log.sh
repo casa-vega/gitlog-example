@@ -118,6 +118,5 @@ done
 
 # remove list of repos and created directory
 rm $FILE
-rm -rf logs/
 # unset API token for good measure
 unset TOKEN
