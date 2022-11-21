@@ -111,7 +111,7 @@ for i in "${REPOS[@]}"; do
   git clone --bare https://x-access-token:$TOKEN@github.com/$i.git $REPO
   cd $REPO
   echo "- redirecting git log STDOUT to file for $i repo"
-  git log --pretty=format:%h,%an,%ae,%at,%D --all >> ../logs/$REPO.log
+  git log --pretty=format:%h,%an,%ae,%at,%D --all >> ../logs/$REPO.csv
   cd ..
   rm -rf $REPO
 done
